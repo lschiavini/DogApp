@@ -23,6 +23,7 @@ private const val ARG_PARAM2 = "param2"
  */
 class DetailFragment : Fragment() {
 
+    private var dogUuid = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,6 +36,11 @@ class DetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        arguments?.let {
+            dogUuid = DetailFragmentArgs.fromBundle(it).dogUuid
+            detailFragmentTextView.text = dogUuid.toString()
+        }
 
         buttonList.setOnClickListener {
             val action: NavDirections = DetailFragmentDirections.actionListFragment()
