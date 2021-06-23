@@ -3,6 +3,8 @@ package com.example.androiddogapp.view
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.Navigation
+import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.RecyclerView
 import com.example.androiddogapp.R
 import com.example.androiddogapp.model.DogBreed
@@ -30,6 +32,10 @@ class DogsListAdapter(
     override fun onBindViewHolder(holder: DogViewHolder, position: Int) {
         holder.view.name.text = dogsList[position].dogBreed
         holder.view.lifespan.text = dogsList[position].lifeSpan
+        holder.view.setOnClickListener {
+            Navigation.findNavController(it).navigate(ListFragmentDirections.actionDetailFragment())
+        }
+
     }
 
     override fun getItemCount() = dogsList.size
