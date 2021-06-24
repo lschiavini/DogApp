@@ -10,30 +10,11 @@ class DetailViewModel(application: Application) : BaseViewModel(application) {
     val dogLiveData = MutableLiveData<DogBreed>()
     var dogsLoaded = listOf<DogBreed>()
 
-    fun fetchFromDatabaseAndSet(uuid: Int) {
+    fun fetch(uuid: Int) {
         launch {
-            val dogs = DogDatabase(getApplication()).dogDao().getAllDogs()
-            setDogSelected(dogs, uuid)
+            val dog = DogDatabase(getApplication()).dogDao().getDog(uuid)
+            dogLiveData.value = dog
         }
-    }
-
-
-    private fun setDogSelected(dogsList: List<DogBreed>, uuid: Int ) {
-        val dogsListFiltered = dogsList.filter { dog -> dog.uuid == uuid }
-        val defaultDog =
-            DogBreed(
-                "1",
-                "Corgi",
-                "15 years",
-                "breedgroup",
-                "bredFor",
-                "temperament",
-                ""
-            )
-        val dog = dogsListFiltered.elementAtOrElse(
-            0 ){ defaultDog }
-
-        dogLiveData.value = dog
     }
 
 }
