@@ -8,7 +8,6 @@ import kotlinx.coroutines.launch
 
 class DetailViewModel(application: Application) : BaseViewModel(application) {
     val dogLiveData = MutableLiveData<DogBreed>()
-    var dogsLoaded = listOf<DogBreed>()
 
     fun fetch(uuid: Int) {
         launch {
