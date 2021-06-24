@@ -34,16 +34,17 @@ class DetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel = ViewModelProviders.of(this).get(DetailViewModel::class.java)
-        viewModel.fetch()
 
 
         arguments?.let {
             dogUuid = DetailFragmentArgs.fromBundle(it).dogUuid
+            viewModel.fetchFromDatabaseAndSet(dogUuid)
         }
 
         observeViewModel()
 
     }
+
     private fun observeViewModel() {
         viewModel.dogLiveData.observe(viewLifecycleOwner, Observer { dog ->
             dog?.let {
