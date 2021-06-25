@@ -10,13 +10,19 @@
         <variable
             name="dog"
             type="com.example.androiddogapp.model.DogBreed" />
+
+        <variable
+            name="palette"
+            type="com.example.androiddogapp.model.DogPallete" />
     </data>
 
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".view.DetailFragment">
+        tools:context=".view.DetailFragment"
+        android:background="@{palette.color}"
+        >
 
         <ImageView
             android:layout_width="match_parent"
