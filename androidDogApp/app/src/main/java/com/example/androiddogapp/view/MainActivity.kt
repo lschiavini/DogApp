@@ -7,10 +7,13 @@ import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.example.androiddogapp.R
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 const val PERMISSION_SEND_SMS = 234
@@ -47,12 +50,10 @@ class MainActivity : AppCompatActivity() {
                 AlertDialog.Builder(this)
                     .setTitle("Send SMS permission")
                     .setMessage("This app requires access to send an SMS.")
-                    .setPositiveButton("Ask me") {
-                        dialog, which ->
+                    .setPositiveButton("Ask me") { dialog, which ->
                         requestSmsPermission()
                     }
-                    .setNegativeButton("No") {
-                            dialog, which ->
+                    .setNegativeButton("No") { dialog, which ->
                         notifyDetailFragment(false)
                     }
                     .show()
@@ -66,7 +67,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestSmsPermission() {
-        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.SEND_SMS), PERMISSION_SEND_SMS)
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.SEND_SMS),
+            PERMISSION_SEND_SMS
+        )
     }
 
     override fun onRequestPermissionsResult(
@@ -74,9 +79,9 @@ class MainActivity : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        when(requestCode) {
+        when (requestCode) {
             PERMISSION_SEND_SMS -> {
-                if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     notifyDetailFragment(true)
                 } else {
                     notifyDetailFragment(false)
@@ -89,10 +94,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun notifyDetailFragment(permissionGranted: Boolean) {
-    val activeFragment  = supportFragmentManager.primaryNavigationFragment
-        if(activeFragment is DetailFragment) {
+        val fragment = getVisibleFragment()
+        val activeFragment = fragment?.childFragmentManager?.primaryNavigationFragment
+        if (activeFragment is DetailFragment) {
             (activeFragment as DetailFragment).onPermissionResult(permissionGranted)
         }
-
     }
+
+    private fun getVisibleFragment(): Fragment? {
+        val fragmentManager: FragmentManager = supportFragmentManager
+        val fragments: List<Fragment> = fragmentManager.fragments
+        for (fragment in fragments) {
+            if (fragment.isVisible) return fragment
+        }
+        return null
+    }
+
+
 }
