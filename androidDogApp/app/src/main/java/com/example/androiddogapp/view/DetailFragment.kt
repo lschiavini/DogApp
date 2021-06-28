@@ -4,39 +4,31 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.*
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.navigation.NavDirections
-import androidx.navigation.Navigation
 import androidx.palette.graphics.Palette
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.example.androiddogapp.R
 import com.example.androiddogapp.databinding.FragmentDetailBinding
-import com.example.androiddogapp.databinding.ItemDogBinding
+import com.example.androiddogapp.databinding.SendSmsDialogBinding
 import com.example.androiddogapp.model.DogBreed
 import com.example.androiddogapp.model.DogPallete
-import com.example.androiddogapp.util.getProgressDrawable
-import com.example.androiddogapp.util.loadImage
+import com.example.androiddogapp.model.SmsInfo
 import com.example.androiddogapp.viewmodel.DetailViewModel
-import com.example.androiddogapp.viewmodel.ListViewModel
-import kotlinx.android.synthetic.main.fragment_detail.*
-import kotlinx.android.synthetic.main.fragment_list.*
-
 
 
 class DetailFragment : Fragment() {
 
     private lateinit var viewModel: DetailViewModel
-
     private lateinit var dataBinding: FragmentDetailBinding
-
     private var sendSmsStarted = false
-
     private var dogUuid = 0
+    private var currentDog: DogBreed? = null
 
 
     override fun onCreateView(
@@ -44,9 +36,7 @@ class DetailFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-
         setHasOptionsMenu(true)
-
         dataBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_detail, container, false)
         return dataBinding.root
     }
@@ -58,13 +48,12 @@ class DetailFragment : Fragment() {
         }
         viewModel = ViewModelProviders.of(this).get(DetailViewModel::class.java)
         viewModel.fetch(dogUuid)
-
         observeViewModel()
-
     }
 
     private fun observeViewModel() {
         viewModel.dogLiveData.observe(viewLifecycleOwner, Observer { dogSelected ->
+            currentDog = dogSelected
             dogSelected?.let { it ->
                 dataBinding.dog = dogSelected
                 it.imageUrl?.let {
@@ -108,7 +97,6 @@ class DetailFragment : Fragment() {
             R.id.action_send_sms -> {
                 sendSmsStarted = true
                 (activity as MainActivity).checkSmsPermission()
-
             }
             R.id.action_share -> {
 
@@ -119,6 +107,41 @@ class DetailFragment : Fragment() {
     }
 
     fun onPermissionResult(permissionGranted: Boolean) {
+        if (sendSmsStarted && permissionGranted) {
+            context?.let {
+                val smsInfo = SmsInfo(
+                    "",
+                    "${currentDog?.dogBreed} bred for ${currentDog?.bredFor}",
+                    "${currentDog?.imageUrl}"
+                )
+                val dialogBinding = DataBindingUtil.inflate<SendSmsDialogBinding>(
+                    LayoutInflater.from(it),
+                    R.layout.send_sms_dialog,
+                    null,
+                    false
+                )
+                AlertDialog.Builder(it)
+                    .setView(dialogBinding.root)
+                    .setPositiveButton("Send SMS") {
+                            dialog,
+                            _ ->
+                        run{
+                            val smsDestinationText = dialogBinding.smsDestination.text
+                            if (!smsDestinationText.isNullOrEmpty()) {
+                                smsInfo.to = smsDestinationText.toString()
+                                sendSms(smsInfo)
+                            }
+                        }
+                    }
+                    .setNegativeButton("Cancel") { dialog, _ -> }
+                    .show()
+            }
+        }
+    }
+
+    private fun sendSms(smsInfo: SmsInfo) {
+
 
     }
+
 }
